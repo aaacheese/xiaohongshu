@@ -1,4 +1,41 @@
-# vinext-starter
+# 小红书防晒笔记 Demo
+
+390 × 844 的小红书笔记详情、评论区与“蹲一蹲”交互演示。
+
+## 本地开发
+
+需要 Node.js `>=22.13.0`：
+
+```bash
+npm install
+npm run dev
+```
+
+## Cloudflare Pages
+
+项目支持 Next.js 静态导出，Cloudflare Pages 使用以下构建设置：
+
+- Production branch: `main`
+- Build command: `npm run build:pages`
+- Build output directory: `out`
+- Node.js version: `22.13.0` 或兼容的 Node 22 版本
+
+本地验证静态产物：
+
+```bash
+npm run build:pages
+npx serve out
+```
+
+静态部署保留以下地址：
+
+- `/`
+- `/messages/`
+- `/messages/squat/`
+- `/?followup=pending`
+- `/?followup=latest`
+
+## Vinext 开发环境
 
 A clean full-stack starter running on
 [vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
