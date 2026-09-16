@@ -66,7 +66,21 @@ type SquatTarget = {
   text: string;
 };
 
-type FollowupSheetMode = "comment" | "pending" | "latest";
+type FollowupSheetMode = "comment" | "empty" | "pending" | "latest";
+
+type FollowupEntryState = {
+  joined: boolean;
+  toastSeen: boolean;
+  hasNewFollowup: boolean;
+  unread: boolean;
+};
+
+const initialFollowupStates: Record<string, FollowupEntryState> = {
+  author: { joined: false, toastSeen: false, hasNewFollowup: false, unread: false },
+  fish: { joined: false, toastSeen: false, hasNewFollowup: false, unread: false },
+  orange: { joined: false, toastSeen: false, hasNewFollowup: false, unread: false },
+  cloud: { joined: false, toastSeen: false, hasNewFollowup: false, unread: false },
+};
 
 const fishTarget: SquatTarget = {
   id: "fish",
@@ -74,10 +88,11 @@ const fishTarget: SquatTarget = {
   text: "D 我已经下单了，准备连续试两周，到时候回来和 A/B/C 一起比一下。",
 };
 
-function SquatAction({ joined, onJoin, onOpen }: { joined: boolean; onJoin: () => void; onOpen: () => void }) {
+function SquatAction({ state, onClick }: { state: FollowupEntryState; onClick: () => void }) {
   return (
-    <button className={`squat-action ${joined ? "joined" : ""}`} onClick={joined ? onOpen : onJoin}>
-      {joined ? "86 人一起蹲 ›" : "蹲一下"}
+    <button className={`squat-action ${state.joined ? "joined" : ""}`} onClick={onClick}>
+      {state.joined ? "86 人一起蹲 ›" : "蹲一下"}
+      {state.joined && state.hasNewFollowup && state.unread && <span className="squat-unread-dot" aria-label="有新后续" />}
     </button>
   );
 }
@@ -147,12 +162,8 @@ function FollowupSheet({ target, mode, onClose, onCancel }: { target: SquatTarge
         <header className="sheet-header">
           <h2 id="sheet-title">蹲一蹲</h2>
           <div className="sheet-status-wrap">
-            {mode === "pending" ? (
-              <span className="sheet-status">待更新</span>
-            ) : (
-              <button className="sheet-status" onClick={() => setStatusOpen((open) => !open)} aria-expanded={statusOpen}>已蹲</button>
-            )}
-            {mode !== "pending" && statusOpen && <button className="cancel-squat" onClick={onCancel}>取消蹲后续</button>}
+            <button className="sheet-status" onClick={() => setStatusOpen((open) => !open)} aria-expanded={statusOpen}>已蹲</button>
+            {statusOpen && <button className="cancel-squat" onClick={onCancel}>取消蹲后续</button>}
           </div>
           <button className="sheet-close pressable" onClick={onClose} aria-label="关闭"><img src="/assets/squat-sheet/close.svg" alt="" /></button>
         </header>
@@ -172,9 +183,11 @@ function FollowupSheet({ target, mode, onClose, onCancel }: { target: SquatTarge
             <p>{target.text}</p>
           </button>
 
-          {mode === "pending" ? (
-            <section className="pending-followup" aria-label="更新状态">
-              <p>作者暂未更新后续</p>
+          {mode === "empty" ? (
+            <section className="latest-followup empty-followup" aria-labelledby="latest-title">
+              <h3 id="latest-title">最新后续</h3>
+              <strong>暂时还没有新后续</strong>
+              <p>86 人正在一起蹲，有新进展时会告诉你</p>
             </section>
           ) : (
             <section className="latest-followup" aria-labelledby="latest-title">
@@ -242,16 +255,20 @@ export default function Home() {
   const [following, setFollowing] = useState(false);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [joinedComments, setJoinedComments] = useState<Record<string, boolean>>({});
+  const [followupStates, setFollowupStates] = useState(initialFollowupStates);
   const [sheetTarget, setSheetTarget] = useState<SquatTarget | null>(null);
   const [sheetMode, setSheetMode] = useState<FollowupSheetMode>("comment");
+  const [sheetFromMessage, setSheetFromMessage] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const savedScrollTop = useRef(0);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const requestedMode = new URLSearchParams(window.location.search).get("followup");
     if (requestedMode !== "pending" && requestedMode !== "latest") return;
 
+    setSheetFromMessage(true);
     setSheetMode(requestedMode);
     setSheetTarget(fishTarget);
     requestAnimationFrame(() => {
@@ -260,15 +277,55 @@ export default function Home() {
     });
   }, []);
 
-  const joinComment = (id: string) => setJoinedComments((items) => ({ ...items, [id]: true }));
-  const openSheet = (target: SquatTarget) => {
+  useEffect(() => () => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+  }, []);
+
+  const updateFollowupState = (id: string, update: Partial<FollowupEntryState>) => {
+    setFollowupStates((states) => ({ ...states, [id]: { ...states[id], ...update } }));
+  };
+  const dismissToast = () => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = null;
+    setToastMessage(null);
+  };
+  const showNoUpdateToast = () => {
+    dismissToast();
+    setToastMessage("还没有新后续，86 人正在一起蹲");
+    toastTimer.current = setTimeout(() => {
+      setToastMessage(null);
+      toastTimer.current = null;
+    }, 1800);
+  };
+  const openSheet = (target: SquatTarget, mode: FollowupSheetMode) => {
     savedScrollTop.current = scrollRef.current?.scrollTop ?? 0;
-    setSheetMode("comment");
+    dismissToast();
+    setSheetFromMessage(false);
+    setSheetMode(mode);
     setSheetTarget(target);
   };
+  const handleSquatClick = (target: SquatTarget) => {
+    const state = followupStates[target.id];
+    if (!state.joined) {
+      updateFollowupState(target.id, { joined: true });
+      return;
+    }
+    if (state.hasNewFollowup) {
+      updateFollowupState(target.id, { unread: false });
+      openSheet(target, "latest");
+      return;
+    }
+    if (!state.toastSeen) {
+      updateFollowupState(target.id, { toastSeen: true });
+      showNoUpdateToast();
+      return;
+    }
+    openSheet(target, "empty");
+  };
   const closeSheet = () => {
-    const openedFromMessages = sheetMode !== "comment";
+    const openedFromMessages = sheetFromMessage;
     setSheetTarget(null);
+    setSheetFromMessage(false);
     if (openedFromMessages) {
       const referrer = document.referrer ? new URL(document.referrer) : null;
       if (referrer?.origin === window.location.origin && referrer.pathname === "/messages/squat") {
@@ -281,7 +338,8 @@ export default function Home() {
     requestAnimationFrame(() => { if (scrollRef.current) scrollRef.current.scrollTop = savedScrollTop.current; });
   };
   const cancelSquat = () => {
-    if (sheetTarget) setJoinedComments((items) => ({ ...items, [sheetTarget.id]: false }));
+    if (sheetTarget) updateFollowupState(sheetTarget.id, { joined: false, toastSeen: false });
+    dismissToast();
     closeSheet();
   };
 
@@ -333,7 +391,7 @@ export default function Home() {
                   <p>我最近还买了羽西的防晒，等我用段时间再来反馈</p>
                   <img className="author-sticker" src="/assets/author-sticker.png" alt="可爱表情" width={22} height={22} />
                   <div className="comment-meta-row">
-                    <div className="comment-meta">09-01 安徽 <button>回复</button> <SquatAction joined={!!joinedComments.author} onJoin={() => joinComment("author")} onOpen={() => openSheet({ id: "author", name: "你霉柿吧", text: "我最近还买了羽西的防晒，等我用段时间再来反馈" })} /></div>
+                    <div className="comment-meta">09-01 安徽 <button>回复</button> <SquatAction state={followupStates.author} onClick={() => handleSquatClick({ id: "author", name: "你霉柿吧", text: "我最近还买了羽西的防晒，等我用段时间再来反馈" })} /></div>
                     <CommentActions count={10} />
                   </div>
                   <span className="pinned-comment">置顶评论</span>
@@ -358,7 +416,7 @@ export default function Home() {
                   <div className="comment-name">小鱼</div>
                   <p>D 我已经下单了，准备连续试两周，到时候回来和 A/B/C 一起比一下。</p>
                   <div className="comment-meta-row">
-                    <div className="comment-meta">09-15 上海 <button>回复</button> <SquatAction joined={!!joinedComments.fish} onJoin={() => joinComment("fish")} onOpen={() => openSheet(fishTarget)} /></div>
+                    <div className="comment-meta">09-15 上海 <button>回复</button> <SquatAction state={followupStates.fish} onClick={() => handleSquatClick(fishTarget)} /></div>
                     <CommentActions count={12} />
                   </div>
                 </div>
@@ -371,7 +429,7 @@ export default function Home() {
                   <p>这个我有话语权！！！去年用到今年，蜜思婷水润哑光轻盈防晒霜空瓶记！</p>
                   <img className="comment-photo" src="/assets/comment-sunscreen.png" alt="评论中展示的蜜思婷防晒产品" width={120} height={160} />
                   <div className="comment-meta-row">
-                    <div className="comment-meta">09-08 江苏 <button>回复</button> <SquatAction joined={!!joinedComments.orange} onJoin={() => joinComment("orange")} onOpen={() => openSheet({ id: "orange", name: "甜橙.", text: "这个我有话语权！！！去年用到今年，蜜思婷水润哑光轻盈防晒霜空瓶记！" })} /></div>
+                    <div className="comment-meta">09-08 江苏 <button>回复</button> <SquatAction state={followupStates.orange} onClick={() => handleSquatClick({ id: "orange", name: "甜橙.", text: "这个我有话语权！！！去年用到今年，蜜思婷水润哑光轻盈防晒霜空瓶记！" })} /></div>
                     <CommentActions count={1} />
                   </div>
                 </div>
@@ -383,7 +441,7 @@ export default function Home() {
                   <div className="comment-name">小岛天气晴</div>
                   <p>敏感肌想问一下 B 会不会熏眼睛呀？最近真的挑防晒挑花眼了。</p>
                   <div className="comment-meta-row">
-                    <div className="comment-meta">09-12 浙江 <button>回复</button> <SquatAction joined={!!joinedComments.cloud} onJoin={() => joinComment("cloud")} onOpen={() => openSheet({ id: "cloud", name: "小岛天气晴", text: "敏感肌想问一下 B 会不会熏眼睛呀？最近真的挑防晒挑花眼了。" })} /></div>
+                    <div className="comment-meta">09-12 浙江 <button>回复</button> <SquatAction state={followupStates.cloud} onClick={() => handleSquatClick({ id: "cloud", name: "小岛天气晴", text: "敏感肌想问一下 B 会不会熏眼睛呀？最近真的挑防晒挑花眼了。" })} /></div>
                     <CommentActions count={5} />
                   </div>
                 </div>
@@ -393,6 +451,7 @@ export default function Home() {
           <div className="scroll-spacer" />
         </div>
 
+        {toastMessage && <div className="squat-toast" role="status" aria-live="polite">{toastMessage}</div>}
         <footer className="bottom-bar">
           <button className="bottom-input pressable"><PenIcon /><span>说点什么…</span></button>
           <button className={`bottom-action ${liked ? "active" : ""}`} onClick={() => setLiked(!liked)} aria-label="点赞"><HeartIcon size={27} filled={liked} /><span>{liked ? 487 : 486}</span></button>
