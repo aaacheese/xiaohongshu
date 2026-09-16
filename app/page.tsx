@@ -137,9 +137,9 @@ function FollowupSheet({ target, onClose, onCancel }: { target: SquatTarget; onC
         </div>
 
         <header className="sheet-header">
-          <h2 id="sheet-title">蹲后续</h2>
+          <h2 id="sheet-title">蹲一蹲</h2>
           <div className="sheet-status-wrap">
-            <button className="sheet-status" onClick={() => setStatusOpen((open) => !open)} aria-expanded={statusOpen}>已蹲⌄</button>
+            <button className="sheet-status" onClick={() => setStatusOpen((open) => !open)} aria-expanded={statusOpen}>已蹲</button>
             {statusOpen && <button className="cancel-squat" onClick={onCancel}>取消蹲后续</button>}
           </div>
           <button className="sheet-close pressable" onClick={onClose} aria-label="关闭"><img src="/assets/squat-sheet/close.svg" alt="" /></button>
@@ -149,17 +149,16 @@ function FollowupSheet({ target, onClose, onCancel }: { target: SquatTarget; onC
           <button className="quoted-comment" onClick={onClose}>
             <div className="quoted-top">
               <span>@{target.name}的评论</span>
-              <span>进行第 6 天</span>
+              <span className="quoted-progress">
+                <span>进行第6天</span>
+                <span className="participant-avatars">
+                  <img src="/assets/squat-sheet/avatar-1.png" alt="" /><img src="/assets/squat-sheet/avatar-2.png" alt="" /><img src="/assets/squat-sheet/avatar-3.png" alt="" />
+                </span>
+                <span>88人在蹲</span>
+              </span>
             </div>
             <p>{target.text}</p>
           </button>
-
-          <div className="together-row" aria-label="86 人一起蹲，进行第 6 天">
-            <span className="participant-avatars">
-              <img src="/assets/squat-sheet/avatar-1.png" alt="" /><img src="/assets/squat-sheet/avatar-2.png" alt="" /><img src="/assets/squat-sheet/avatar-3.png" alt="" />
-            </span>
-            <span>86 人一起蹲 · 进行第 6 天</span>
-          </div>
 
           <section className="latest-followup" aria-labelledby="latest-title">
             <h3 id="latest-title">最新后续</h3>
