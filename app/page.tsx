@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type IconProps = { size?: number; className?: string; filled?: boolean };
 
@@ -60,6 +60,145 @@ function CommentActions({ count, initial = false }: { count: number; initial?: b
   );
 }
 
+type SquatTarget = {
+  id: string;
+  name: string;
+  text: string;
+};
+
+function SquatAction({ joined, onJoin, onOpen }: { joined: boolean; onJoin: () => void; onOpen: () => void }) {
+  return (
+    <button className={`squat-action ${joined ? "joined" : ""}`} onClick={joined ? onOpen : onJoin}>
+      {joined ? "86 人一起蹲 ›" : "蹲一下"}
+    </button>
+  );
+}
+
+const followupDiscussions = [
+  { name: "嘿嘿", text: "我也是混油皮，D 前一周确实很好用，但第二周开始有一点拔干。", meta: "刚刚 上海", likes: 32, avatar: "/assets/squat-sheet/avatar-1.png" },
+  { name: "一起加油吧", text: "我还是更看好 B，如果是敏感肌感觉会稳定一点。", meta: "3分钟前 江苏", likes: 23, avatar: "/assets/squat-sheet/avatar-2.png" },
+  { name: "上海见～", text: "我已经用过 D，我反而没有明显拔干，可能和肤质有关。", meta: "5分钟前 浙江", likes: 10, avatar: "/assets/squat-sheet/avatar-3.png" },
+];
+
+function FollowupComment({ item }: { item: (typeof followupDiscussions)[number] }) {
+  return (
+    <article className="sheet-comment">
+      <img className="comment-avatar" src={item.avatar} alt={`${item.name}头像`} width={36} height={36} />
+      <div className="comment-body">
+        <div className="comment-name">{item.name}</div>
+        <p>{item.text}</p>
+        <div className="comment-meta-row">
+          <div className="comment-meta">{item.meta} <button>回复</button></div>
+          <CommentActions count={item.likes} />
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function FollowupSheet({ target, onClose, onCancel }: { target: SquatTarget; onClose: () => void; onCancel: () => void }) {
+  const [statusOpen, setStatusOpen] = useState(false);
+  const [draft, setDraft] = useState("");
+  const [newItems, setNewItems] = useState<string[]>([]);
+  const [dragY, setDragY] = useState(0);
+  const dragStart = useRef<number | null>(null);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => event.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onClose]);
+
+  const submit = () => {
+    const value = draft.trim();
+    if (!value) return;
+    setNewItems((items) => [value, ...items]);
+    setDraft("");
+  };
+
+  return (
+    <div className="sheet-layer" role="presentation">
+      <button className="sheet-backdrop" aria-label="关闭蹲后续" onClick={onClose} />
+      <section
+        className={`followup-sheet ${dragY > 0 ? "dragging" : ""}`}
+        style={{ transform: `translateY(${dragY}px)` }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="sheet-title"
+      >
+        <div
+          className="sheet-drag-zone"
+          onPointerDown={(event) => { dragStart.current = event.clientY; event.currentTarget.setPointerCapture(event.pointerId); }}
+          onPointerMove={(event) => { if (dragStart.current !== null) setDragY(Math.max(0, event.clientY - dragStart.current)); }}
+          onPointerUp={() => { if (dragY > 105) onClose(); else setDragY(0); dragStart.current = null; }}
+          onPointerCancel={() => { setDragY(0); dragStart.current = null; }}
+        >
+          <span className="drag-handle" />
+        </div>
+
+        <header className="sheet-header">
+          <h2 id="sheet-title">蹲后续</h2>
+          <div className="sheet-status-wrap">
+            <button className="sheet-status" onClick={() => setStatusOpen((open) => !open)} aria-expanded={statusOpen}>已蹲⌄</button>
+            {statusOpen && <button className="cancel-squat" onClick={onCancel}>取消蹲后续</button>}
+          </div>
+          <button className="sheet-close pressable" onClick={onClose} aria-label="关闭"><img src="/assets/squat-sheet/close.svg" alt="" /></button>
+        </header>
+
+        <div className="sheet-scroll">
+          <button className="quoted-comment" onClick={onClose}>
+            <div className="quoted-top">
+              <span>@{target.name}的评论</span>
+              <span>进行第 6 天</span>
+            </div>
+            <p>{target.text}</p>
+          </button>
+
+          <div className="together-row" aria-label="86 人一起蹲，进行第 6 天">
+            <span className="participant-avatars">
+              <img src="/assets/squat-sheet/avatar-1.png" alt="" /><img src="/assets/squat-sheet/avatar-2.png" alt="" /><img src="/assets/squat-sheet/avatar-3.png" alt="" />
+            </span>
+            <span>86 人一起蹲 · 进行第 6 天</span>
+          </div>
+
+          <section className="latest-followup" aria-labelledby="latest-title">
+            <h3 id="latest-title">最新后续</h3>
+            <article className="sheet-comment featured">
+              <div className="avatar-fallback fish">鱼</div>
+              <div className="comment-body">
+                <div className="comment-name">小鱼 <span className="update-time">· 2 小时前</span></div>
+                <p>D 已经用了第 6 天，目前控油确实比 B 好，但开始有一点拔干，再继续观察几天。</p>
+                <div className="comment-meta-row">
+                  <div className="comment-meta">09-20 上海 <button>回复</button></div>
+                  <CommentActions count={99} />
+                </div>
+              </div>
+            </article>
+          </section>
+
+          <div className="sheet-divider" />
+          <section className="followup-discussions" aria-labelledby="discussion-title">
+            <h3 id="discussion-title">共 68 条后续讨论 <span className="sort-lines" aria-hidden="true" /></h3>
+            {newItems.map((text, index) => (
+              <FollowupComment key={`${text}-${index}`} item={{ name: "我", text, meta: "刚刚 上海", likes: 0, avatar: "/assets/viewer-avatar.png" }} />
+            ))}
+            {followupDiscussions.map((item) => <FollowupComment key={item.name} item={item} />)}
+          </section>
+          <div className="sheet-input-spacer" />
+        </div>
+
+        <form className="sheet-composer" onSubmit={(event) => { event.preventDefault(); submit(); }}>
+          <img src="/assets/viewer-avatar.png" alt="当前用户头像" width={36} height={36} />
+          <div className="sheet-input-wrap">
+            <input value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="说点什么…" aria-label="后续讨论内容" />
+            <button type="submit" disabled={!draft.trim()}>发布</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  );
+}
+
 function StatusBar() {
   return (
     <div className="status-bar" aria-label="iOS 状态栏">
@@ -77,11 +216,29 @@ export default function Home() {
   const [following, setFollowing] = useState(false);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [joinedComments, setJoinedComments] = useState<Record<string, boolean>>({});
+  const [sheetTarget, setSheetTarget] = useState<SquatTarget | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const savedScrollTop = useRef(0);
+
+  const joinComment = (id: string) => setJoinedComments((items) => ({ ...items, [id]: true }));
+  const openSheet = (target: SquatTarget) => {
+    savedScrollTop.current = scrollRef.current?.scrollTop ?? 0;
+    setSheetTarget(target);
+  };
+  const closeSheet = () => {
+    setSheetTarget(null);
+    requestAnimationFrame(() => { if (scrollRef.current) scrollRef.current.scrollTop = savedScrollTop.current; });
+  };
+  const cancelSquat = () => {
+    if (sheetTarget) setJoinedComments((items) => ({ ...items, [sheetTarget.id]: false }));
+    closeSheet();
+  };
 
   return (
     <main className="stage">
       <section className="phone" aria-label="小红书笔记详情页演示">
-        <div className="scroll-view">
+        <div className={`scroll-view ${sheetTarget ? "sheet-open" : ""}`} ref={scrollRef}>
           <header className="sticky-header">
             <StatusBar />
             <nav className="nav-bar" aria-label="笔记导航">
@@ -126,7 +283,7 @@ export default function Home() {
                   <p>我最近还买了羽西的防晒，等我用段时间再来反馈</p>
                   <img className="author-sticker" src="/assets/author-sticker.png" alt="可爱表情" width={22} height={22} />
                   <div className="comment-meta-row">
-                    <div className="comment-meta">09-01 安徽 <button>回复</button></div>
+                    <div className="comment-meta">09-01 安徽 <button>回复</button> <SquatAction joined={!!joinedComments.author} onJoin={() => joinComment("author")} onOpen={() => openSheet({ id: "author", name: "你霉柿吧", text: "我最近还买了羽西的防晒，等我用段时间再来反馈" })} /></div>
                     <CommentActions count={10} />
                   </div>
                   <span className="pinned-comment">置顶评论</span>
@@ -151,7 +308,7 @@ export default function Home() {
                   <div className="comment-name">小鱼</div>
                   <p>D 我已经下单了，准备连续试两周，到时候回来和 A/B/C 一起比一下。</p>
                   <div className="comment-meta-row">
-                    <div className="comment-meta">09-15 上海 <button>回复</button></div>
+                    <div className="comment-meta">09-15 上海 <button>回复</button> <SquatAction joined={!!joinedComments.fish} onJoin={() => joinComment("fish")} onOpen={() => openSheet({ id: "fish", name: "小鱼", text: "D 我已经下单了，准备连续试两周，到时候回来和 A/B/C 一起比一下。" })} /></div>
                     <CommentActions count={12} />
                   </div>
                 </div>
@@ -164,7 +321,7 @@ export default function Home() {
                   <p>这个我有话语权！！！去年用到今年，蜜思婷水润哑光轻盈防晒霜空瓶记！</p>
                   <img className="comment-photo" src="/assets/comment-sunscreen.png" alt="评论中展示的蜜思婷防晒产品" width={120} height={160} />
                   <div className="comment-meta-row">
-                    <div className="comment-meta">09-08 江苏 <button>回复</button></div>
+                    <div className="comment-meta">09-08 江苏 <button>回复</button> <SquatAction joined={!!joinedComments.orange} onJoin={() => joinComment("orange")} onOpen={() => openSheet({ id: "orange", name: "甜橙.", text: "这个我有话语权！！！去年用到今年，蜜思婷水润哑光轻盈防晒霜空瓶记！" })} /></div>
                     <CommentActions count={1} />
                   </div>
                 </div>
@@ -176,7 +333,7 @@ export default function Home() {
                   <div className="comment-name">小岛天气晴</div>
                   <p>敏感肌想问一下 B 会不会熏眼睛呀？最近真的挑防晒挑花眼了。</p>
                   <div className="comment-meta-row">
-                    <div className="comment-meta">09-12 浙江 <button>回复</button></div>
+                    <div className="comment-meta">09-12 浙江 <button>回复</button> <SquatAction joined={!!joinedComments.cloud} onJoin={() => joinComment("cloud")} onOpen={() => openSheet({ id: "cloud", name: "小岛天气晴", text: "敏感肌想问一下 B 会不会熏眼睛呀？最近真的挑防晒挑花眼了。" })} /></div>
                     <CommentActions count={5} />
                   </div>
                 </div>
@@ -192,6 +349,7 @@ export default function Home() {
           <button className={`bottom-action ${saved ? "active" : ""}`} onClick={() => setSaved(!saved)} aria-label="收藏"><StarIcon size={28} filled={saved} /><span>{saved ? 162 : 161}</span></button>
           <button className="bottom-action" aria-label="评论"><CommentIcon size={28} /><span>68</span></button>
         </footer>
+        {sheetTarget && <FollowupSheet target={sheetTarget} onClose={closeSheet} onCancel={cancelSquat} />}
       </section>
     </main>
   );
