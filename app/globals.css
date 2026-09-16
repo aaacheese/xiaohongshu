@@ -85,6 +85,8 @@ button { color: inherit; }
 .follow-button { margin-left: auto; width: 63px; height: 29px; border: 1px solid var(--red); border-radius: 17px; background: #fff; color: var(--red); font-size: 14px; font-weight: 500; transition: .16s ease; }
 .follow-button.following { color: #999; border-color: #ddd; }
 .share-button { margin-left: 11px; }
+.share-icon { display: block; flex: 0 0 auto; overflow: hidden; }
+.share-icon img { display: block; width: 100%; height: 100%; }
 .pressable { transition: transform .12s ease, opacity .12s ease; }
 .pressable:active { transform: scale(.96); opacity: .62; }
 

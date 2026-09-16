@@ -8,8 +8,8 @@ function BackIcon({ size = 26 }: IconProps) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m15 5-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }
 
-function ShareIcon({ size = 27 }: IconProps) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3.5 19c1.1-6.5 5.2-10 11.4-10.4V4.7c0-.9 1-1.3 1.6-.7l5.2 5.2c.5.5.5 1.2 0 1.7l-5.2 5.2c-.6.6-1.6.2-1.6-.7v-3.5c-4.6.2-8 2-10.6 7.5-.2.5-.9.2-.8-.4Z" stroke="currentColor" strokeWidth="1.85" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+function ShareIcon({ size = 24 }: IconProps) {
+  return <span className="share-icon" style={{ width: size, height: size }} aria-hidden="true"><img src="/assets/share-new.svg" alt="" width={size} height={size} /></span>;
 }
 
 function HeartIcon({ size = 22, filled = false }: IconProps) {
