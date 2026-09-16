@@ -124,15 +124,25 @@ export default function Home() {
                 <div className="comment-body">
                   <div className="comment-name">你霉柿吧 <span className="author-badge">作者</span></div>
                   <p>我最近还买了羽西的防晒，等我用段时间再来反馈</p>
-                  <div className="comment-meta">09-01 安徽 <button>回复</button></div>
+                  <img className="author-sticker" src="/assets/author-sticker.png" alt="可爱表情" width={22} height={22} />
+                  <div className="comment-meta-row">
+                    <div className="comment-meta">09-01 安徽 <button>回复</button></div>
+                    <CommentActions count={10} />
+                  </div>
+                  <span className="pinned-comment">置顶评论</span>
                   <div className="nested-reply">
                     <img className="reply-avatar" src="/assets/reply-avatar.png" alt="我吃吃吃头像" width={28} height={28} />
-                    <div><div className="comment-name">我吃吃吃</div><p>蹲蹲</p><div className="comment-meta">09-01 重庆 <button>回复</button></div></div>
-                    <CommentActions count={2} />
+                    <div className="nested-content">
+                      <div className="comment-name">我吃吃吃</div>
+                      <p>蹲蹲</p>
+                      <div className="comment-meta-row">
+                        <div className="comment-meta">09-01 重庆 <button>回复</button></div>
+                        <CommentActions count={2} />
+                      </div>
+                    </div>
                   </div>
                   <button className="expand-replies"><span />展开 4 条回复</button>
                 </div>
-                <CommentActions count={10} />
               </article>
 
               <article className="comment">
@@ -140,9 +150,11 @@ export default function Home() {
                 <div className="comment-body">
                   <div className="comment-name">小鱼</div>
                   <p>D 我已经下单了，准备连续试两周，到时候回来和 A/B/C 一起比一下。</p>
-                  <div className="comment-meta">09-15 上海 <button>回复</button></div>
+                  <div className="comment-meta-row">
+                    <div className="comment-meta">09-15 上海 <button>回复</button></div>
+                    <CommentActions count={12} />
+                  </div>
                 </div>
-                <CommentActions count={12} />
               </article>
 
               <article className="comment image-comment">
@@ -151,9 +163,11 @@ export default function Home() {
                   <div className="comment-name">甜橙.</div>
                   <p>这个我有话语权！！！去年用到今年，蜜思婷水润哑光轻盈防晒霜空瓶记！</p>
                   <img className="comment-photo" src="/assets/comment-sunscreen.png" alt="评论中展示的蜜思婷防晒产品" width={120} height={160} />
-                  <div className="comment-meta">09-08 江苏 <button>回复</button></div>
+                  <div className="comment-meta-row">
+                    <div className="comment-meta">09-08 江苏 <button>回复</button></div>
+                    <CommentActions count={1} />
+                  </div>
                 </div>
-                <CommentActions count={1} />
               </article>
 
               <article className="comment">
@@ -161,9 +175,11 @@ export default function Home() {
                 <div className="comment-body">
                   <div className="comment-name">小岛天气晴</div>
                   <p>敏感肌想问一下 B 会不会熏眼睛呀？最近真的挑防晒挑花眼了。</p>
-                  <div className="comment-meta">09-12 浙江 <button>回复</button></div>
+                  <div className="comment-meta-row">
+                    <div className="comment-meta">09-12 浙江 <button>回复</button></div>
+                    <CommentActions count={5} />
+                  </div>
                 </div>
-                <CommentActions count={5} />
               </article>
             </div>
           </section>
