@@ -229,6 +229,15 @@ function StatusBar() {
   );
 }
 
+function PendingUpdateScreen({ onClose }: { onClose: () => void }) {
+  return (
+    <section className="pending-update-screen" aria-label="发布最新进展">
+      <img src="/assets/messages/pending-update-figma.png" alt="去更新界面" width={510} height={1108} />
+      <button className="pending-update-close pressable" type="button" onClick={onClose} aria-label="关闭更新界面" />
+    </section>
+  );
+}
+
 export default function Home() {
   const [following, setFollowing] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -390,7 +399,9 @@ export default function Home() {
           <button className={`bottom-action ${saved ? "active" : ""}`} onClick={() => setSaved(!saved)} aria-label="收藏"><StarIcon size={28} filled={saved} /><span>{saved ? 162 : 161}</span></button>
           <button className="bottom-action" aria-label="评论"><CommentIcon size={28} /><span>68</span></button>
         </footer>
-        {sheetTarget && <FollowupSheet target={sheetTarget} mode={sheetMode} onClose={closeSheet} onCancel={cancelSquat} />}
+        {sheetTarget && (sheetMode === "pending"
+          ? <PendingUpdateScreen onClose={closeSheet} />
+          : <FollowupSheet target={sheetTarget} mode={sheetMode} onClose={closeSheet} onCancel={cancelSquat} />)}
       </section>
     </main>
   );

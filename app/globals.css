@@ -216,6 +216,10 @@ button { color: inherit; }
 
 .scroll-view.sheet-open { overflow: hidden; }
 
+.pending-update-screen { position: absolute; z-index: 70; inset: 0; overflow: hidden; background: #fff; }
+.pending-update-screen > img { width: 100%; height: auto; max-width: none; display: block; }
+.pending-update-close { position: absolute; top: 255px; right: 0; width: 44px; height: 44px; padding: 0; border: 0; background: transparent; }
+
 .sheet-layer {
   position: absolute;
   z-index: 60;
