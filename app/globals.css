@@ -166,6 +166,55 @@ button { color: inherit; }
 .bottom-action { flex: 0 0 auto; min-width: 39px; padding: 0; border: 0; background: transparent; color: #252525; display: flex; align-items: center; gap: 4px; font-size: 14px; }
 .bottom-action.active { color: var(--red); }
 
+/* Messages */
+.messages-phone { background: #fff; }
+.messages-base { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; pointer-events: none; }
+.squat-conversation {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 218px;
+  height: 66px;
+  padding: 0 17px 0 11px;
+  display: flex;
+  align-items: center;
+  color: #222;
+  background: #fff;
+  text-decoration: none;
+}
+.squat-conversation > img { width: 58px; height: 58px; flex: 0 0 auto; }
+.squat-conversation-copy { min-width: 0; margin-left: 10px; display: flex; flex-direction: column; gap: 3px; }
+.squat-conversation-copy strong { font-size: 16px; line-height: 22px; font-weight: 650; }
+.squat-conversation-copy > span { overflow: hidden; color: #999; font-size: 14px; line-height: 20px; white-space: nowrap; text-overflow: ellipsis; }
+.squat-conversation time { margin-left: auto; align-self: flex-start; padding-top: 9px; color: #aaa; font-size: 12px; }
+.squat-conversation > i { position: absolute; right: 17px; bottom: 12px; width: 7px; height: 7px; border-radius: 50%; background: #ff2442; }
+
+/* Squat message detail */
+.squat-messages-phone { color: #333; background: #fff; overflow: hidden; }
+.squat-messages-header { position: relative; height: 117px; }
+.squat-messages-header h1 { position: absolute; top: 70px; left: 50%; margin: 0; transform: translateX(-50%); font-size: 15px; line-height: 18px; font-weight: 560; white-space: nowrap; }
+.detail-back { position: absolute; left: 13px; top: 63px; width: 40px; height: 40px; display: grid; place-items: center; }
+.detail-back img { width: 26px; height: 26px; display: block; }
+.mark-read { position: absolute; top: 71px; right: 17px; padding: 0; border: 0; background: transparent; color: #333; font-size: 12px; line-height: 16px; }
+.squat-messages-content { height: calc(100% - 117px); overflow-y: auto; padding: 0 15px 30px; scrollbar-width: none; }
+.squat-messages-content::-webkit-scrollbar { display: none; }
+.message-group + .message-group { margin-top: 30px; }
+.message-group h2 { margin: 0 0 18px; color: #999; font-size: 15px; line-height: 18px; font-weight: 400; }
+.message-stack { display: flex; flex-direction: column; gap: 18px; }
+.squat-message-item { width: 100%; min-width: 0; padding: 0; border: 0; background: transparent; display: grid; grid-template-columns: 47px minmax(0,1fr); column-gap: 14px; align-items: center; text-align: left; }
+.squat-message-item:has(.message-thumb) { grid-template-columns: 38px minmax(0,1fr) 40px; column-gap: 11px; align-items: start; }
+.squat-message-avatar { width: 47px; height: 47px; border-radius: 50%; object-fit: cover; }
+.squat-message-item:has(.message-thumb) .squat-message-avatar { width: 38px; height: 38px; }
+.squat-message-copy { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.squat-message-top { min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.squat-message-top strong { flex: 0 0 auto; color: #333; font-size: 16.5px; line-height: 18px; font-weight: 500; }
+.squat-message-top small { overflow: hidden; color: #999; font-size: 10.5px; line-height: 13px; font-weight: 400; white-space: nowrap; text-overflow: ellipsis; }
+.message-preview, .message-quote { overflow: hidden; color: #999; font-size: 14px; line-height: 16px; white-space: nowrap; text-overflow: ellipsis; }
+.message-quote { position: relative; padding-left: 9px; color: #999; font-size: 13.5px; }
+.message-quote::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 2px; background: #d9d9d9; }
+.message-thumb { width: 40px; height: 40px; border-radius: 6px; overflow: hidden; }
+.message-thumb img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 35%; }
+
 .scroll-view.sheet-open { overflow: hidden; }
 
 .sheet-layer {

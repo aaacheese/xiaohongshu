@@ -241,7 +241,7 @@ export default function Home() {
           <header className="sticky-header">
             <StatusBar />
             <nav className="nav-bar" aria-label="笔记导航">
-              <button className="icon-button pressable" aria-label="返回"><BackIcon /></button>
+              <a className="icon-button pressable" href="/messages" aria-label="返回消息页"><BackIcon /></a>
               <img className="nav-avatar" src="/assets/author-avatar.png" alt="你霉柿吧头像" width={44} height={44} />
               <span className="author-name">你霉柿吧</span>
               <button className={`follow-button ${following ? "following" : ""}`} onClick={() => setFollowing(!following)}>{following ? "已关注" : "关注"}</button>
