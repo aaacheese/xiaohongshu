@@ -44,12 +44,19 @@ function FaceIcon({ size = 15 }: IconProps) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.7" /><path d="M8.5 10h.01M15.5 10h.01M8.5 16c1-1.3 2.1-2 3.5-2s2.5.7 3.5 2" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" /></svg>;
 }
 
-function LikeButton({ count, initial = false }: { count: number; initial?: boolean }) {
+function DislikeIcon({ size = 24 }: IconProps) {
+  return <span className="dislike-icon" style={{ width: size, height: size }} aria-hidden="true"><img src="/assets/dislike-new.svg" alt="" width={size} height={size} /></span>;
+}
+
+function CommentActions({ count, initial = false }: { count: number; initial?: boolean }) {
   const [liked, setLiked] = useState(initial);
   return (
-    <button className={`comment-like ${liked ? "active" : ""}`} onClick={() => setLiked(!liked)} aria-label={liked ? "取消点赞" : "点赞"}>
-      <HeartIcon size={19} filled={liked} /><span>{count + (liked && !initial ? 1 : 0)}</span>
-    </button>
+    <div className="comment-actions">
+      <button className={`comment-like ${liked ? "active" : ""}`} onClick={() => setLiked(!liked)} aria-label={liked ? "取消点赞" : "点赞"}>
+        <HeartIcon size={19} filled={liked} /><span>{count + (liked && !initial ? 1 : 0)}</span>
+      </button>
+      <button className="comment-dislike pressable" aria-label="表态"><DislikeIcon /></button>
+    </div>
   );
 }
 
@@ -121,11 +128,11 @@ export default function Home() {
                   <div className="nested-reply">
                     <img className="reply-avatar" src="/assets/reply-avatar.png" alt="我吃吃吃头像" width={28} height={28} />
                     <div><div className="comment-name">我吃吃吃</div><p>蹲蹲</p><div className="comment-meta">09-01 重庆 <button>回复</button></div></div>
-                    <LikeButton count={2} />
+                    <CommentActions count={2} />
                   </div>
                   <button className="expand-replies"><span />展开 4 条回复</button>
                 </div>
-                <LikeButton count={10} />
+                <CommentActions count={10} />
               </article>
 
               <article className="comment">
@@ -135,7 +142,7 @@ export default function Home() {
                   <p>D 我已经下单了，准备连续试两周，到时候回来和 A/B/C 一起比一下。</p>
                   <div className="comment-meta">09-15 上海 <button>回复</button></div>
                 </div>
-                <LikeButton count={12} />
+                <CommentActions count={12} />
               </article>
 
               <article className="comment image-comment">
@@ -146,7 +153,7 @@ export default function Home() {
                   <img className="comment-photo" src="/assets/comment-sunscreen.png" alt="评论中展示的蜜思婷防晒产品" width={120} height={160} />
                   <div className="comment-meta">09-08 江苏 <button>回复</button></div>
                 </div>
-                <LikeButton count={1} />
+                <CommentActions count={1} />
               </article>
 
               <article className="comment">
@@ -156,7 +163,7 @@ export default function Home() {
                   <p>敏感肌想问一下 B 会不会熏眼睛呀？最近真的挑防晒挑花眼了。</p>
                   <div className="comment-meta">09-12 浙江 <button>回复</button></div>
                 </div>
-                <LikeButton count={5} />
+                <CommentActions count={5} />
               </article>
             </div>
           </section>
