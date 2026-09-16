@@ -9,7 +9,7 @@ function BackIcon({ size = 26 }: IconProps) {
 }
 
 function ShareIcon({ size = 27 }: IconProps) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 5.2 17.8 2 22 6.4l-4.2 4V7.7c-5.8.2-9.3 2.3-11.2 7.7.3-7 3.7-10.1 11.2-10.2H14Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /><path d="M18 13.1v6.3A1.6 1.6 0 0 1 16.4 21H4.6A1.6 1.6 0 0 1 3 19.4V7.6A1.6 1.6 0 0 1 4.6 6H9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>;
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3.5 19c1.1-6.5 5.2-10 11.4-10.4V4.7c0-.9 1-1.3 1.6-.7l5.2 5.2c.5.5.5 1.2 0 1.7l-5.2 5.2c-.6.6-1.6.2-1.6-.7v-3.5c-4.6.2-8 2-10.6 7.5-.2.5-.9.2-.8-.4Z" stroke="currentColor" strokeWidth="1.85" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }
 
 function HeartIcon({ size = 22, filled = false }: IconProps) {
