@@ -168,7 +168,7 @@ button { color: inherit; }
 
 /* Messages */
 .messages-phone { background: #fff; }
-.messages-base { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: fill; pointer-events: none; }
+.messages-base { position: absolute; top: 0; left: 0; width: 100%; height: auto; max-width: none; display: block; pointer-events: none; }
 .squat-conversation {
   position: absolute;
   left: 0;
