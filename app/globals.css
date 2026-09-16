@@ -191,6 +191,8 @@ button { color: inherit; }
 
 /* Squat message detail */
 .squat-messages-phone { color: #333; background: #fff; overflow: hidden; }
+.detail-status-crop { position: absolute; z-index: 2; left: 0; right: 0; top: 0; height: 61px; overflow: hidden; background: #fff; }
+.detail-status-crop img { width: 390px; height: 844px; display: block; object-fit: cover; object-position: top; }
 .squat-messages-header { position: relative; height: 117px; }
 .squat-messages-header h1 { position: absolute; top: 70px; left: 50%; margin: 0; transform: translateX(-50%); font-size: 15px; line-height: 18px; font-weight: 560; white-space: nowrap; }
 .detail-back { position: absolute; left: 13px; top: 63px; width: 40px; height: 40px; display: grid; place-items: center; }
@@ -200,20 +202,26 @@ button { color: inherit; }
 .squat-messages-content::-webkit-scrollbar { display: none; }
 .message-group + .message-group { margin-top: 30px; }
 .message-group h2 { margin: 0 0 18px; color: #999; font-size: 15px; line-height: 18px; font-weight: 400; }
-.message-stack { display: flex; flex-direction: column; gap: 18px; }
-.squat-message-item { width: 100%; min-width: 0; padding: 0; border: 0; background: transparent; display: grid; grid-template-columns: 47px minmax(0,1fr); column-gap: 14px; align-items: center; text-align: left; }
-.squat-message-item:has(.message-thumb) { grid-template-columns: 38px minmax(0,1fr) 40px; column-gap: 11px; align-items: start; }
-.squat-message-avatar { width: 47px; height: 47px; border-radius: 50%; object-fit: cover; }
-.squat-message-item:has(.message-thumb) .squat-message-avatar { width: 38px; height: 38px; }
-.squat-message-copy { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
-.squat-message-top { min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.squat-message-top strong { flex: 0 0 auto; color: #333; font-size: 16.5px; line-height: 18px; font-weight: 500; }
-.squat-message-top small { overflow: hidden; color: #999; font-size: 10.5px; line-height: 13px; font-weight: 400; white-space: nowrap; text-overflow: ellipsis; }
-.message-preview, .message-quote { overflow: hidden; color: #999; font-size: 14px; line-height: 16px; white-space: nowrap; text-overflow: ellipsis; }
-.message-quote { position: relative; padding-left: 9px; color: #999; font-size: 13.5px; }
-.message-quote::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 2px; background: #d9d9d9; }
-.message-thumb { width: 40px; height: 40px; border-radius: 6px; overflow: hidden; }
-.message-thumb img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 35%; }
+.waiting-message { width: 100%; padding: 0; border: 0; background: transparent; display: grid; grid-template-columns: 40px minmax(0,1fr); gap: 9px; align-items: start; text-align: left; }
+.waiting-thumb { width: 40px; height: 40px; border-radius: 6px; overflow: hidden; }
+.waiting-thumb img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 31%; }
+.waiting-copy { min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.waiting-copy > strong { font-size: 15px; line-height: 16px; font-weight: 560; }
+.waiting-actions { display: flex; align-items: center; gap: 10px; }
+.waiting-actions > span { height: 23px; padding: 0 14px; border: 1px solid #e1e1e1; border-radius: 13px; display: flex; align-items: center; color: #333; font-size: 11px; }
+.waiting-actions i { width: 23px; height: 23px; border: 1px solid #e1e1e1; border-radius: 50%; display: grid; place-items: center; }
+.waiting-actions i img { width: 10px; height: 10px; display: block; }
+.followup-stack { display: flex; flex-direction: column; gap: 20px; }
+.followup-message { width: 100%; min-width: 0; padding: 0; border: 0; background: transparent; display: grid; grid-template-columns: 38px minmax(0,1fr) 40px; gap: 11px; align-items: start; text-align: left; }
+.followup-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+.followup-copy { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.followup-name { min-width: 0; display: flex; align-items: center; gap: 6px; color: #333; font-size: 15px; line-height: 16px; font-weight: 560; white-space: nowrap; }
+.followup-name em { height: 16px; padding: 0 8px; border-radius: 8px; background: #ffedf0; color: #ff2442; display: flex; align-items: center; font-size: 10.5px; line-height: 16px; font-style: normal; font-weight: 400; }
+.followup-meta { overflow: hidden; color: #666; font-size: 12px; line-height: 13px; white-space: nowrap; text-overflow: ellipsis; }
+.followup-quote { position: relative; overflow: hidden; padding-left: 9px; color: #999; font-size: 13.5px; line-height: 16px; white-space: nowrap; text-overflow: ellipsis; }
+.followup-quote::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 2px; background: #d9d9d9; }
+.followup-thumb { width: 40px; height: 40px; border-radius: 6px; overflow: hidden; }
+.followup-thumb img { width: 100%; height: 100%; display: block; object-fit: cover; }
 
 .scroll-view.sheet-open { overflow: hidden; }
 
