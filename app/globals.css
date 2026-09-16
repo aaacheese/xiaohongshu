@@ -199,11 +199,11 @@ button { color: inherit; }
 .waiting-copy { min-width: 0; display: flex; flex-direction: column; gap: 12px; }
 .waiting-copy > strong { font-size: 15px; line-height: 16px; font-weight: 560; }
 .waiting-actions { display: flex; align-items: center; gap: 10px; }
-.waiting-actions > span { height: 23px; padding: 0 14px; border: 1px solid #e1e1e1; border-radius: 13px; display: flex; align-items: center; color: #333; font-size: 11px; }
-.waiting-actions i { width: 23px; height: 23px; border: 1px solid #e1e1e1; border-radius: 50%; display: grid; place-items: center; }
-.waiting-actions i img { width: 10px; height: 10px; display: block; }
+.waiting-actions > a { height: 23px; padding: 0 14px; border: 1px solid #e1e1e1; border-radius: 13px; display: flex; align-items: center; color: #333; font-size: 11px; text-decoration: none; }
+.waiting-actions > button { width: 23px; height: 23px; padding: 0; border: 1px solid #e1e1e1; border-radius: 50%; background: #fff; display: grid; place-items: center; }
+.waiting-actions > button img { width: 10px; height: 10px; display: block; }
 .followup-stack { display: flex; flex-direction: column; gap: 20px; }
-.followup-message { width: 100%; min-width: 0; padding: 0; border: 0; background: transparent; display: grid; grid-template-columns: 38px minmax(0,1fr) 40px; gap: 11px; align-items: start; text-align: left; }
+.followup-message { width: 100%; min-width: 0; padding: 0; border: 0; background: transparent; color: inherit; display: grid; grid-template-columns: 38px minmax(0,1fr) 40px; gap: 11px; align-items: start; text-align: left; text-decoration: none; }
 .followup-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
 .followup-copy { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
 .followup-name { min-width: 0; display: flex; align-items: center; gap: 6px; color: #333; font-size: 15px; line-height: 16px; font-weight: 560; white-space: nowrap; }
@@ -243,13 +243,14 @@ button { color: inherit; }
   animation: sheet-in .28s cubic-bezier(.22,.7,.25,1) both;
   transition: transform .25s cubic-bezier(.22,.7,.25,1);
 }
+.followup-sheet.from-message { height: 70.5%; border-radius: 15px 15px 0 0; }
 .followup-sheet.dragging { transition: none; }
 .sheet-drag-zone { height: 20px; display: grid; place-items: center; touch-action: none; cursor: grab; }
 .drag-handle { width: 35px; height: 4px; border-radius: 3px; background: #dedede; }
 .sheet-header { position: relative; height: 51px; padding: 2px 54px 9px 17px; display: flex; align-items: center; border-bottom: 1px solid #f4f4f4; }
 .sheet-header h2 { margin: 0; font-size: 20px; line-height: 28px; font-weight: 590; letter-spacing: -.4px; }
 .sheet-status-wrap { position: relative; margin-left: 12px; }
-.sheet-status { height: 27px; min-width: 48px; padding: 0 11px; border: 1px solid #d8d8d8; border-radius: 14px; background: #fff; color: #666; font-size: 13px; }
+.sheet-status { height: 27px; min-width: 48px; padding: 0 11px; border: 1px solid #d8d8d8; border-radius: 14px; background: #fff; color: #666; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; }
 .cancel-squat { position: absolute; z-index: 3; top: 31px; left: 0; width: 94px; height: 38px; padding: 0; border: 1px solid #eee; border-radius: 8px; background: #fff; box-shadow: 0 5px 18px rgba(0,0,0,.08); color: #555; font-size: 13px; white-space: nowrap; }
 .sheet-close { position: absolute; right: 15px; top: 3px; width: 38px; height: 38px; padding: 6px; border: 0; background: transparent; display: grid; place-items: center; }
 .sheet-close img { width: 22px; height: 22px; display: block; }
@@ -263,6 +264,8 @@ button { color: inherit; }
 .participant-avatars img { width: 17px; height: 17px; margin-left: -7px; border: 1px solid #fff; border-radius: 50%; object-fit: cover; }
 .latest-followup h3, .followup-discussions h3 { margin: 3px 0 16px; color: #111; font-size: 15px; line-height: 21px; font-weight: 600; }
 .latest-followup h3 { margin-top: 20px; }
+.pending-followup { min-height: 62px; padding: 20px 0 17px; }
+.pending-followup p { margin: 0; color: #adadad; font-size: 15px; line-height: 21px; }
 .sheet-comment { display: grid; grid-template-columns: 36px minmax(0,1fr); gap: 12px; padding-bottom: 23px; }
 .sheet-comment .comment-body > p { margin: 5px 0 6px; color: #282828; font-size: 14.5px; line-height: 1.55; word-break: break-word; }
 .sheet-comment.featured { padding-bottom: 18px; }

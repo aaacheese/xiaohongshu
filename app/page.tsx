@@ -66,6 +66,14 @@ type SquatTarget = {
   text: string;
 };
 
+type FollowupSheetMode = "comment" | "pending" | "latest";
+
+const fishTarget: SquatTarget = {
+  id: "fish",
+  name: "小鱼",
+  text: "D 我已经下单了，准备连续试两周，到时候回来和 A/B/C 一起比一下。",
+};
+
 function SquatAction({ joined, onJoin, onOpen }: { joined: boolean; onJoin: () => void; onOpen: () => void }) {
   return (
     <button className={`squat-action ${joined ? "joined" : ""}`} onClick={joined ? onOpen : onJoin}>
@@ -96,7 +104,7 @@ function FollowupComment({ item }: { item: (typeof followupDiscussions)[number] 
   );
 }
 
-function FollowupSheet({ target, onClose, onCancel }: { target: SquatTarget; onClose: () => void; onCancel: () => void }) {
+function FollowupSheet({ target, mode, onClose, onCancel }: { target: SquatTarget; mode: FollowupSheetMode; onClose: () => void; onCancel: () => void }) {
   const [statusOpen, setStatusOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const [newItems, setNewItems] = useState<string[]>([]);
@@ -120,7 +128,7 @@ function FollowupSheet({ target, onClose, onCancel }: { target: SquatTarget; onC
     <div className="sheet-layer" role="presentation">
       <button className="sheet-backdrop" aria-label="关闭蹲后续" onClick={onClose} />
       <section
-        className={`followup-sheet ${dragY > 0 ? "dragging" : ""}`}
+        className={`followup-sheet ${mode !== "comment" ? "from-message" : ""} ${dragY > 0 ? "dragging" : ""}`}
         style={{ transform: `translateY(${dragY}px)` }}
         role="dialog"
         aria-modal="true"
@@ -139,8 +147,12 @@ function FollowupSheet({ target, onClose, onCancel }: { target: SquatTarget; onC
         <header className="sheet-header">
           <h2 id="sheet-title">蹲一蹲</h2>
           <div className="sheet-status-wrap">
-            <button className="sheet-status" onClick={() => setStatusOpen((open) => !open)} aria-expanded={statusOpen}>已蹲</button>
-            {statusOpen && <button className="cancel-squat" onClick={onCancel}>取消蹲后续</button>}
+            {mode === "pending" ? (
+              <span className="sheet-status">待更新</span>
+            ) : (
+              <button className="sheet-status" onClick={() => setStatusOpen((open) => !open)} aria-expanded={statusOpen}>已蹲</button>
+            )}
+            {mode !== "pending" && statusOpen && <button className="cancel-squat" onClick={onCancel}>取消蹲后续</button>}
           </div>
           <button className="sheet-close pressable" onClick={onClose} aria-label="关闭"><img src="/assets/squat-sheet/close.svg" alt="" /></button>
         </header>
@@ -160,20 +172,26 @@ function FollowupSheet({ target, onClose, onCancel }: { target: SquatTarget; onC
             <p>{target.text}</p>
           </button>
 
-          <section className="latest-followup" aria-labelledby="latest-title">
-            <h3 id="latest-title">最新后续</h3>
-            <article className="sheet-comment featured">
-              <div className="avatar-fallback fish">鱼</div>
-              <div className="comment-body">
-                <div className="comment-name">小鱼 <span className="update-time">· 2 小时前</span></div>
-                <p>D 已经用了第 6 天，目前控油确实比 B 好，但开始有一点拔干，再继续观察几天。</p>
-                <div className="comment-meta-row">
-                  <div className="comment-meta">09-20 上海 <button>回复</button></div>
-                  <CommentActions count={99} />
+          {mode === "pending" ? (
+            <section className="pending-followup" aria-label="更新状态">
+              <p>作者暂未更新后续</p>
+            </section>
+          ) : (
+            <section className="latest-followup" aria-labelledby="latest-title">
+              <h3 id="latest-title">最新后续</h3>
+              <article className="sheet-comment featured">
+                <img className="comment-avatar" src="/assets/author-avatar.png" alt="你霉柿吧头像" width={36} height={36} />
+                <div className="comment-body">
+                  <div className="comment-name">你霉柿吧</div>
+                  <p>D 已经用了第 6 天，目前控油确实比 B 好，但开始有一点拔干，总体还是不错的。</p>
+                  <div className="comment-meta-row">
+                    <div className="comment-meta">09-06 长沙 <button>回复</button></div>
+                    <CommentActions count={99} />
+                  </div>
                 </div>
-              </div>
-            </article>
-          </section>
+              </article>
+            </section>
+          )}
 
           <div className="sheet-divider" />
           <section className="followup-discussions" aria-labelledby="discussion-title">
@@ -217,16 +235,40 @@ export default function Home() {
   const [saved, setSaved] = useState(false);
   const [joinedComments, setJoinedComments] = useState<Record<string, boolean>>({});
   const [sheetTarget, setSheetTarget] = useState<SquatTarget | null>(null);
+  const [sheetMode, setSheetMode] = useState<FollowupSheetMode>("comment");
   const scrollRef = useRef<HTMLDivElement>(null);
   const savedScrollTop = useRef(0);
+
+  useEffect(() => {
+    const requestedMode = new URLSearchParams(window.location.search).get("followup");
+    if (requestedMode !== "pending" && requestedMode !== "latest") return;
+
+    setSheetMode(requestedMode);
+    setSheetTarget(fishTarget);
+    requestAnimationFrame(() => {
+      const targetComment = document.querySelector<HTMLElement>('[data-squat-target="fish"]');
+      if (scrollRef.current && targetComment) scrollRef.current.scrollTop = Math.max(0, targetComment.offsetTop - 92);
+    });
+  }, []);
 
   const joinComment = (id: string) => setJoinedComments((items) => ({ ...items, [id]: true }));
   const openSheet = (target: SquatTarget) => {
     savedScrollTop.current = scrollRef.current?.scrollTop ?? 0;
+    setSheetMode("comment");
     setSheetTarget(target);
   };
   const closeSheet = () => {
+    const openedFromMessages = sheetMode !== "comment";
     setSheetTarget(null);
+    if (openedFromMessages) {
+      const referrer = document.referrer ? new URL(document.referrer) : null;
+      if (referrer?.origin === window.location.origin && referrer.pathname === "/messages/squat") {
+        window.history.back();
+      } else {
+        window.history.replaceState({}, "", "/");
+      }
+      return;
+    }
     requestAnimationFrame(() => { if (scrollRef.current) scrollRef.current.scrollTop = savedScrollTop.current; });
   };
   const cancelSquat = () => {
@@ -301,13 +343,13 @@ export default function Home() {
                 </div>
               </article>
 
-              <article className="comment">
+              <article className="comment" data-squat-target="fish">
                 <div className="avatar-fallback fish">鱼</div>
                 <div className="comment-body">
                   <div className="comment-name">小鱼</div>
                   <p>D 我已经下单了，准备连续试两周，到时候回来和 A/B/C 一起比一下。</p>
                   <div className="comment-meta-row">
-                    <div className="comment-meta">09-15 上海 <button>回复</button> <SquatAction joined={!!joinedComments.fish} onJoin={() => joinComment("fish")} onOpen={() => openSheet({ id: "fish", name: "小鱼", text: "D 我已经下单了，准备连续试两周，到时候回来和 A/B/C 一起比一下。" })} /></div>
+                    <div className="comment-meta">09-15 上海 <button>回复</button> <SquatAction joined={!!joinedComments.fish} onJoin={() => joinComment("fish")} onOpen={() => openSheet(fishTarget)} /></div>
                     <CommentActions count={12} />
                   </div>
                 </div>
@@ -348,7 +390,7 @@ export default function Home() {
           <button className={`bottom-action ${saved ? "active" : ""}`} onClick={() => setSaved(!saved)} aria-label="收藏"><StarIcon size={28} filled={saved} /><span>{saved ? 162 : 161}</span></button>
           <button className="bottom-action" aria-label="评论"><CommentIcon size={28} /><span>68</span></button>
         </footer>
-        {sheetTarget && <FollowupSheet target={sheetTarget} onClose={closeSheet} onCancel={cancelSquat} />}
+        {sheetTarget && <FollowupSheet target={sheetTarget} mode={sheetMode} onClose={closeSheet} onCancel={cancelSquat} />}
       </section>
     </main>
   );

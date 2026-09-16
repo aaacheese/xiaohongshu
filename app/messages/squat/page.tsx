@@ -5,11 +5,12 @@ type FollowupItemProps = {
   text: string;
   thumb: string;
   fresh?: boolean;
+  href?: string;
 };
 
-function FollowupItem({ avatar, name, meta, text, thumb, fresh = false }: FollowupItemProps) {
-  return (
-    <button className="followup-message pressable" type="button">
+function FollowupItem({ avatar, name, meta, text, thumb, fresh = false, href }: FollowupItemProps) {
+  const content = (
+    <>
       <img className="followup-avatar" src={avatar} alt="" />
       <span className="followup-copy">
         <span className="followup-name">{name}{fresh && <em>新后续</em>}</span>
@@ -17,8 +18,12 @@ function FollowupItem({ avatar, name, meta, text, thumb, fresh = false }: Follow
         <span className="followup-quote">{text}</span>
       </span>
       <span className="followup-thumb"><img src={thumb} alt="后续内容图片" /></span>
-    </button>
+    </>
   );
+
+  return href
+    ? <a className="followup-message pressable" href={href}>{content}</a>
+    : <button className="followup-message pressable" type="button">{content}</button>;
 }
 
 export default function SquatMessagesPage() {
@@ -35,14 +40,17 @@ export default function SquatMessagesPage() {
         <div className="squat-messages-content">
           <section className="message-group waiting-group" aria-labelledby="waiting-title">
             <h2 id="waiting-title">等你更新</h2>
-            <button className="waiting-message pressable" type="button">
+            <div className="waiting-message">
               <span className="waiting-thumb"><img src="/assets/messages/waiting-thumb.png" alt="待更新的防晒内容" /></span>
               <span className="waiting-copy">
                 <strong>86 人正在蹲你的后续</strong>
                 <span className="followup-quote">已下单 D，准备连续试两周，到时候回来和 A/B...</span>
-                <span className="waiting-actions"><span>去更新</span><i aria-label="关闭"><img src="/assets/squat-sheet/close.svg" alt="" /></i></span>
+                <span className="waiting-actions">
+                  <a className="pressable" href="/?followup=pending">去更新</a>
+                  <button className="pressable" type="button" aria-label="关闭"><img src="/assets/squat-sheet/close.svg" alt="" /></button>
+                </span>
               </span>
-            </button>
+            </div>
           </section>
 
           <section className="message-group" aria-labelledby="updated-title">
@@ -55,6 +63,7 @@ export default function SquatMessagesPage() {
                 text="已经用了第6天，目前控油确实比 B 好..."
                 thumb="/assets/messages/new-thumb-1.png"
                 fresh
+                href="/?followup=latest"
               />
               <FollowupItem
                 avatar="/assets/messages/new-avatar-2.png"
