@@ -258,7 +258,6 @@ export default function Home() {
   const [followupStates, setFollowupStates] = useState(initialFollowupStates);
   const [sheetTarget, setSheetTarget] = useState<SquatTarget | null>(null);
   const [sheetMode, setSheetMode] = useState<FollowupSheetMode>("comment");
-  const [sheetFromMessage, setSheetFromMessage] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const savedScrollTop = useRef(0);
@@ -268,12 +267,15 @@ export default function Home() {
     const requestedMode = new URLSearchParams(window.location.search).get("followup");
     if (requestedMode !== "pending" && requestedMode !== "latest") return;
 
-    setSheetFromMessage(true);
     setSheetMode(requestedMode);
     setSheetTarget(fishTarget);
     requestAnimationFrame(() => {
       const targetComment = document.querySelector<HTMLElement>('[data-squat-target="fish"]');
-      if (scrollRef.current && targetComment) scrollRef.current.scrollTop = Math.max(0, targetComment.offsetTop - 92);
+      if (scrollRef.current && targetComment) {
+        const targetScrollTop = Math.max(0, targetComment.offsetTop - 92);
+        scrollRef.current.scrollTop = targetScrollTop;
+        savedScrollTop.current = targetScrollTop;
+      }
     });
   }, []);
 
@@ -300,19 +302,29 @@ export default function Home() {
   const openSheet = (target: SquatTarget, mode: FollowupSheetMode) => {
     savedScrollTop.current = scrollRef.current?.scrollTop ?? 0;
     dismissToast();
-    setSheetFromMessage(false);
     setSheetMode(mode);
     setSheetTarget(target);
   };
-  const handleSquatClick = (target: SquatTarget) => {
+  const handleAuthorSquatClick = (target: SquatTarget) => {
+    const state = followupStates[target.id];
+    if (!state.joined) {
+      updateFollowupState(target.id, { joined: true, toastSeen: true });
+      showNoUpdateToast();
+      return;
+    }
+    openSheet(target, "empty");
+  };
+  const handleFishSquatClick = () => {
+    const state = followupStates.fish;
+    if (!state.joined || state.unread) {
+      updateFollowupState("fish", { joined: true, unread: false });
+    }
+    openSheet(fishTarget, "latest");
+  };
+  const handleDefaultSquatClick = (target: SquatTarget) => {
     const state = followupStates[target.id];
     if (!state.joined) {
       updateFollowupState(target.id, { joined: true });
-      return;
-    }
-    if (state.hasNewFollowup) {
-      updateFollowupState(target.id, { unread: false });
-      openSheet(target, "latest");
       return;
     }
     if (!state.toastSeen) {
@@ -323,17 +335,12 @@ export default function Home() {
     openSheet(target, "empty");
   };
   const closeSheet = () => {
-    const openedFromMessages = sheetFromMessage;
     setSheetTarget(null);
-    setSheetFromMessage(false);
-    if (openedFromMessages) {
-      const referrer = document.referrer ? new URL(document.referrer) : null;
-      if (referrer?.origin === window.location.origin && referrer.pathname === "/messages/squat") {
-        window.history.back();
-      } else {
-        window.history.replaceState({}, "", "/");
-      }
-      return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("followup")) {
+      url.searchParams.delete("followup");
+      const search = url.searchParams.toString();
+      window.history.replaceState({}, "", `${url.pathname}${search ? `?${search}` : ""}${url.hash}`);
     }
     requestAnimationFrame(() => { if (scrollRef.current) scrollRef.current.scrollTop = savedScrollTop.current; });
   };
@@ -391,7 +398,7 @@ export default function Home() {
                   <p>我最近还买了羽西的防晒，等我用段时间再来反馈</p>
                   <img className="author-sticker" src="/assets/author-sticker.png" alt="可爱表情" width={22} height={22} />
                   <div className="comment-meta-row">
-                    <div className="comment-meta">09-01 安徽 <button>回复</button> <SquatAction state={followupStates.author} onClick={() => handleSquatClick({ id: "author", name: "你霉柿吧", text: "我最近还买了羽西的防晒，等我用段时间再来反馈" })} /></div>
+                    <div className="comment-meta">09-01 安徽 <button>回复</button> <SquatAction state={followupStates.author} onClick={() => handleAuthorSquatClick({ id: "author", name: "你霉柿吧", text: "我最近还买了羽西的防晒，等我用段时间再来反馈" })} /></div>
                     <CommentActions count={10} />
                   </div>
                   <span className="pinned-comment">置顶评论</span>
@@ -416,7 +423,7 @@ export default function Home() {
                   <div className="comment-name">小鱼</div>
                   <p>D 我已经下单了，准备连续试两周，到时候回来和 A/B/C 一起比一下。</p>
                   <div className="comment-meta-row">
-                    <div className="comment-meta">09-15 上海 <button>回复</button> <SquatAction state={followupStates.fish} onClick={() => handleSquatClick(fishTarget)} /></div>
+                    <div className="comment-meta">09-15 上海 <button>回复</button> <SquatAction state={followupStates.fish} onClick={handleFishSquatClick} /></div>
                     <CommentActions count={12} />
                   </div>
                 </div>
@@ -429,7 +436,7 @@ export default function Home() {
                   <p>这个我有话语权！！！去年用到今年，蜜思婷水润哑光轻盈防晒霜空瓶记！</p>
                   <img className="comment-photo" src="/assets/comment-sunscreen.png" alt="评论中展示的蜜思婷防晒产品" width={120} height={160} />
                   <div className="comment-meta-row">
-                    <div className="comment-meta">09-08 江苏 <button>回复</button> <SquatAction state={followupStates.orange} onClick={() => handleSquatClick({ id: "orange", name: "甜橙.", text: "这个我有话语权！！！去年用到今年，蜜思婷水润哑光轻盈防晒霜空瓶记！" })} /></div>
+                    <div className="comment-meta">09-08 江苏 <button>回复</button> <SquatAction state={followupStates.orange} onClick={() => handleDefaultSquatClick({ id: "orange", name: "甜橙.", text: "这个我有话语权！！！去年用到今年，蜜思婷水润哑光轻盈防晒霜空瓶记！" })} /></div>
                     <CommentActions count={1} />
                   </div>
                 </div>
@@ -441,7 +448,7 @@ export default function Home() {
                   <div className="comment-name">小岛天气晴</div>
                   <p>敏感肌想问一下 B 会不会熏眼睛呀？最近真的挑防晒挑花眼了。</p>
                   <div className="comment-meta-row">
-                    <div className="comment-meta">09-12 浙江 <button>回复</button> <SquatAction state={followupStates.cloud} onClick={() => handleSquatClick({ id: "cloud", name: "小岛天气晴", text: "敏感肌想问一下 B 会不会熏眼睛呀？最近真的挑防晒挑花眼了。" })} /></div>
+                    <div className="comment-meta">09-12 浙江 <button>回复</button> <SquatAction state={followupStates.cloud} onClick={() => handleDefaultSquatClick({ id: "cloud", name: "小岛天气晴", text: "敏感肌想问一下 B 会不会熏眼睛呀？最近真的挑防晒挑花眼了。" })} /></div>
                     <CommentActions count={5} />
                   </div>
                 </div>
