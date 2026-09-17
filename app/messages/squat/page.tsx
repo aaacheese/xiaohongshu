@@ -1,3 +1,8 @@
+"use client";
+
+import Link from "next/link";
+import { usePrototypeExperience } from "../../prototype-experience";
+
 type FollowupItemProps = {
   avatar: string;
   name: string;
@@ -22,17 +27,19 @@ function FollowupItem({ avatar, name, meta, text, thumb, fresh = false, href }: 
   );
 
   return href
-    ? <a className="followup-message pressable" href={href}>{content}</a>
+    ? <Link className="followup-message pressable" href={href}>{content}</Link>
     : <button className="followup-message pressable" type="button">{content}</button>;
 }
 
 export default function SquatMessagesPage() {
+  const { completeStep } = usePrototypeExperience();
+
   return (
     <main className="stage">
       <section className="phone squat-messages-phone" aria-label="蹲一蹲消息详情">
         <div className="detail-status-crop" aria-hidden="true"><img src="/assets/messages/messages-base-mobile.jpg" alt="" /></div>
         <header className="squat-messages-header">
-          <a className="detail-back pressable" href="/messages" aria-label="返回消息页"><img src="/assets/messages/back-left.svg" alt="" /></a>
+          <Link className="detail-back pressable" href="/messages" aria-label="返回消息页"><img src="/assets/messages/back-left.svg" alt="" /></Link>
           <h1>蹲一蹲消息</h1>
           <button className="mark-read pressable" type="button">全部已读</button>
         </header>
@@ -46,7 +53,7 @@ export default function SquatMessagesPage() {
                 <strong>86 人正在蹲你的后续</strong>
                 <span className="followup-quote">已下单 D，准备连续试两周，到时候回来和 A/B...</span>
                 <span className="waiting-actions">
-                  <a className="pressable" href="/?followup=pending">去更新</a>
+                  <Link className="pressable" href="/?followup=pending" onClick={() => completeStep(4)}>去更新</Link>
                   <button className="pressable" type="button" aria-label="关闭"><img src="/assets/squat-sheet/close.svg" alt="" /></button>
                 </span>
               </span>

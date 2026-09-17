@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { PrototypeExperienceProvider } from "./prototype-experience";
 
 export const metadata: Metadata = {
   title: "从 21 年到现在用过的防晒",
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="zh-CN">
-      <body>{children}</body>
+      <body><PrototypeExperienceProvider>{children}</PrototypeExperienceProvider></body>
     </html>
   );
 }

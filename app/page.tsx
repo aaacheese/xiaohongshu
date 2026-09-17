@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { usePrototypeExperience } from "./prototype-experience";
 
 type IconProps = { size?: number; className?: string; filled?: boolean };
 
@@ -252,6 +254,7 @@ function PendingUpdateScreen({ onClose }: { onClose: () => void }) {
 }
 
 export default function Home() {
+  const { completeStep } = usePrototypeExperience();
   const [following, setFollowing] = useState(false);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -267,9 +270,9 @@ export default function Home() {
     const requestedMode = new URLSearchParams(window.location.search).get("followup");
     if (requestedMode !== "pending" && requestedMode !== "latest") return;
 
-    setSheetMode(requestedMode);
-    setSheetTarget(fishTarget);
-    requestAnimationFrame(() => {
+    const frame = requestAnimationFrame(() => {
+      setSheetMode(requestedMode);
+      setSheetTarget(fishTarget);
       const targetComment = document.querySelector<HTMLElement>('[data-squat-target="fish"]');
       if (scrollRef.current && targetComment) {
         const targetScrollTop = Math.max(0, targetComment.offsetTop - 92);
@@ -277,6 +280,7 @@ export default function Home() {
         savedScrollTop.current = targetScrollTop;
       }
     });
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => () => {
@@ -310,9 +314,11 @@ export default function Home() {
     if (!state.joined) {
       updateFollowupState(target.id, { joined: true, toastSeen: true });
       showNoUpdateToast();
+      completeStep(1);
       return;
     }
     openSheet(target, "empty");
+    completeStep(2);
   };
   const handleFishSquatClick = () => {
     const state = followupStates.fish;
@@ -320,6 +326,7 @@ export default function Home() {
       updateFollowupState("fish", { joined: true, unread: false });
     }
     openSheet(fishTarget, "latest");
+    completeStep(3);
   };
   const handleDefaultSquatClick = (target: SquatTarget) => {
     const state = followupStates[target.id];
@@ -357,7 +364,7 @@ export default function Home() {
           <header className="sticky-header">
             <StatusBar />
             <nav className="nav-bar" aria-label="笔记导航">
-              <a className="icon-button pressable" href="/messages" aria-label="返回消息页"><BackIcon /></a>
+              <Link className="icon-button pressable" href="/messages" aria-label="返回消息页"><BackIcon /></Link>
               <img className="nav-avatar" src="/assets/author-avatar.png" alt="你霉柿吧头像" width={44} height={44} />
               <span className="author-name">你霉柿吧</span>
               <button className={`follow-button ${following ? "following" : ""}`} onClick={() => setFollowing(!following)}>{following ? "已关注" : "关注"}</button>
